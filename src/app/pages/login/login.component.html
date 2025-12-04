@@ -1,0 +1,44 @@
+<app-loading [isLoading]="isLoading"></app-loading>
+<div class="min-h-screen grid grid-cols-1 md:grid-cols-2">
+  <div
+    class="hidden md:block bg-cover bg-center"
+    style="background-image: url('image.png')"
+  ></div>
+
+  <!-- Right side form -->
+  <div class="flex flex-col justify-center items-center px-4 sm:px-8 md:px-12">
+    <div class="w-full max-w-md space-y-6">
+      <div class="text-center">
+        <img src="logo.png" alt="Logo" class="mx-auto w-48" />
+        <h2 class="text-2xl font-bold text-gray-900">Login</h2>
+      </div>
+
+      <div class="space-y-4">
+        <form
+          [formGroup]="form"
+          class="flex flex-col gap-4 items-center"
+          (ngSubmit)="onSubmit()"
+        >
+          <input
+            type="text"
+            formControlName="userName"
+            placeholder="username"
+            class="w-full p-3 border-2"
+          />
+          <input
+            type="password"
+            formControlName="password"
+            placeholder="password"
+            class="w-full p-3 border-2"
+          />
+          <button
+            type="submit"
+            class="border px-12 py-2 cursor-pointer hover:bg-gray-200 rounded-md"
+          >
+            Login
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
