@@ -19,7 +19,7 @@ export class AuthService {
   private baseUrl = environment.baseUrl;
 
   login(credentials: { userName: string, password: string }): Observable<login> {
-    return this.http.post<login>(`${this.baseUrl}/login`, credentials).pipe(
+    return this.http.post<login>(`${this.baseUrl}/admin/login`, credentials).pipe(
       catchError((error) => {
         if (error.status === 401) {
           throw new Error('Unauthorized: Invalid username or password');
@@ -30,7 +30,7 @@ export class AuthService {
   }
 
   logout(): Observable<void> {
-    return this.http.post<void>(`${this.baseUrl}/logout`, {}, {
+    return this.http.post<void>(`${this.baseUrl}/admin/logout`, {}, {
       headers: {
         'Authorization' : `Bearer ${localStorage.getItem('token')}`
       }

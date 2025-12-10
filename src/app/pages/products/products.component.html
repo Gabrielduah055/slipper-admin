@@ -1,1 +1,57 @@
-<p>products works!</p>
+<div class="min-h-screen bg-[#F5F7FB] px-6 py-6">
+  <div class="mb-6 flex items-center justify-between">
+    <h1 class="text-2xl font-bold text-slate-900">Products</h1>
+    <a routerLink="/products/add" 
+       class="rounded-lg bg-purple-600 px-4 py-2 text-white hover:bg-purple-700">
+      + Add Product
+    </a>
+  </div>
+
+  <div *ngIf="isLoading" class="flex items-center justify-center py-12">
+    <p class="text-slate-400">Loading products...</p>
+  </div>
+
+  <div *ngIf="!isLoading && products.length === 0" class="flex items-center justify-center py-12">
+    <p class="text-slate-400">No products found. Add your first product!</p>
+  </div>
+
+  <div *ngIf="!isLoading && products.length > 0" 
+       class="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+    <div *ngFor="let product of products" 
+         class="group rounded-2xl bg-white p-4 shadow-sm transition-shadow hover:shadow-md">
+      <div class="mb-3 aspect-square overflow-hidden rounded-xl bg-slate-100">
+        <img [src]="product.productImage || 'https://via.placeholder.com/300'" 
+             [alt]="product.productName"
+             class="h-full w-full object-cover">
+      </div>
+      
+      <div class="mb-2">
+        <span class="rounded-full bg-purple-50 px-2 py-1 text-xs text-purple-600">
+          {{ product.category }}
+        </span>
+      </div>
+      
+      <h3 class="mb-1 text-sm font-semibold text-slate-900 line-clamp-2">
+        {{ product.productName }}
+      </h3>
+      
+      <p class="mb-2 text-lg font-bold text-slate-900">${{ product.productPrice }}</p>
+      
+      <div class="mb-3 flex items-center justify-between text-xs text-slate-400">
+        <span>Stock: {{ product.productStock }}</span>
+        <span *ngIf="product.productStock === 0" class="text-rose-500">Out of Stock</span>
+      </div>
+      
+      <div class="flex gap-2">
+        <a [routerLink]="['/products', product.id]" 
+           class="flex-1 rounded-lg border border-slate-200 px-3 py-2 text-center text-xs text-slate-600 hover:bg-slate-50">
+          View
+        </a>
+        <button (click)="deleteProduct(product.id!)" 
+                class="rounded-lg border border-rose-200 px-3 py-2 text-xs text-rose-600 hover:bg-rose-50">
+          Delete
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
