@@ -5,11 +5,10 @@ import { Router, RouterLink } from '@angular/router';
 import { ProductsService } from '../../../service/products.service';
 
 @Component({
-  selector: 'app-add-product',
-  standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, FormsModule, RouterLink],
-  templateUrl: './add-product.component.html',
-  styleUrl: './add-product.component.css'
+    selector: 'app-add-product',
+    imports: [CommonModule, ReactiveFormsModule, FormsModule, RouterLink],
+    templateUrl: './add-product.component.html',
+    styleUrl: './add-product.component.css'
 })
 export class AddProductComponent {
   private fb = inject(FormBuilder)

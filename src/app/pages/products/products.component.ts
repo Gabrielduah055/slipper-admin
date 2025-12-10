@@ -7,11 +7,10 @@ import { Products } from '../../interface/product_interface';
 
 
 @Component({
-  selector: 'app-products',
-  standalone: true,
-  imports: [CommonModule, RouterLink],
-  templateUrl: './products.component.html',
-  styleUrl: './products.component.css'
+    selector: 'app-products',
+    imports: [CommonModule, RouterLink],
+    templateUrl: './products.component.html',
+    styleUrl: './products.component.css'
 })
 export class ProductsComponent implements OnInit {
   private productService = inject(ProductsService);

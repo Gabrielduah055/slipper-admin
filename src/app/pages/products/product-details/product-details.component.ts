@@ -6,11 +6,10 @@ import { ProductsService } from '../../../service/products.service';
 import { Products } from '../../../interface/product_interface';
 
 @Component({
-  selector: 'app-product-details',
-  standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterLink],
-  templateUrl: './product-details.component.html',
-  styleUrl: './product-details.component.css',
+    selector: 'app-product-details',
+    imports: [CommonModule, ReactiveFormsModule, RouterLink],
+    templateUrl: './product-details.component.html',
+    styleUrl: './product-details.component.css'
 })
 export class ProductDetailsComponent implements OnInit {
   private route = inject(ActivatedRoute);
