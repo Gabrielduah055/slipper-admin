@@ -1,56 +1,127 @@
-<div class="min-h-screen bg-[#F5F7FB] px-6 py-6">
+<div class="min-h-screen bg-blue-50 px-6 py-6">
   <div class="mb-6 flex items-center justify-between">
-    <h1 class="text-2xl font-bold text-slate-900">Products</h1>
-    <a routerLink="/products/add" 
-       class="rounded-lg bg-purple-600 px-4 py-2 text-white hover:bg-purple-700">
-      + Add Product
+    <div>
+      <h1 class="text-2xl font-medium text-slate-900">Products</h1>
+      <p class="text-sm text-slate-400">
+        Manage product catalog, inventory and pricing
+      </p>
+    </div>
+
+    <a
+      routerLink="/products/add"
+      class="rounded-lg bg-blue-500 p-2 text-white hover:bg-blue-200 hover:text-slate-800"
+    >
+      Add Product
     </a>
+  </div>
+
+  <div class="bg-white rounded-xl p-4 mb-6 shadow-sm">
+    <div class="flex flex-wrap items-center justify-between gap-4">
+      <div class="flex flex-wrap items-center gap-4">
+        <!-- Search Filter -->
+        <div class="relative">
+          <i
+            class="uil uil-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
+          ></i>
+          <input
+            type="text"
+            placeholder="Filter by name, SKU or category..."
+            class="pl-10 pr-4 py-2 border outline text-sm border-gray-300 rounded-lg focus:outline-none w-lg"
+          />
+        </div>
+
+        <!-- Category Filter -->
+        <select
+          class="border border-gray-300 rounded-lg px-4 py-2 outline-none focus:outline-none text-sm"
+        >
+          <option>All Categories</option>
+          <option>Clothing</option>
+          <option>Electronics</option>
+          <option>Furniture</option>
+          <option>Accessories</option>
+          <option>Decor</option>
+          <option>Kitchen</option>
+        </select>
+
+        <!-- Status Filter -->
+        <select
+          class="border border-gray-300 rounded-lg px-4 py-2 outline-none focus:outline-none text-sm"
+        >
+          <option>Any Status</option>
+          <option>In Stock</option>
+          <option>Out of Stock</option>
+          <option>Low Stock</option>
+        </select>
+
+        <!-- Sort -->
+        <select
+          class="border border-gray-300 rounded-lg px-4 py-2 focus:outline-none text-sm"
+        >
+          <option>Sort</option>
+          <option>Price: Low to High</option>
+          <option>Price: High to Low</option>
+          <option>Name: A to Z</option>
+          <option>Name: Z to A</option>
+        </select>
+      </div>
+    </div>
   </div>
 
   <div *ngIf="isLoading" class="flex items-center justify-center py-12">
     <p class="text-slate-400">Loading products...</p>
   </div>
 
-  <div *ngIf="!isLoading && products.length === 0" class="flex items-center justify-center py-12">
+  <div
+    *ngIf="!isLoading && products.length === 0"
+    class="flex items-center justify-center py-12 relative"
+  >
     <p class="text-slate-400">No products found. Add your first product!</p>
   </div>
 
-  <div *ngIf="!isLoading && products.length > 0" 
-       class="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-    <div *ngFor="let product of products" 
-         class="group rounded-2xl bg-white p-4 shadow-sm transition-shadow hover:shadow-md">
-      <div class="mb-3 aspect-square overflow-hidden rounded-xl bg-slate-100">
-        <img [src]="product.productImage || 'https://via.placeholder.com/300'" 
-             [alt]="product.productName"
-             class="h-full w-full object-cover">
+  <div
+    *ngIf="!isLoading && products.length > 0"
+    class="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 relative"
+  >
+    <div
+      *ngFor="let product of products"
+      class="group overflow-hidden rounded-2xl shadow-sm transition-shadow hover:shadow-md cursor-pointer"
+      [routerLink]="['/products', product._id]"
+    >
+      <div class="mb-3 aspect-square overflow-hidden bg-slate-100">
+        <img
+          [src]="product.productImage || 'https://via.placeholder.com/300'"
+          [alt]="product.productName"
+          class="h-full w-full object-cover"
+        />
       </div>
-      
-      <div class="mb-2">
-        <span class="rounded-full bg-purple-50 px-2 py-1 text-xs text-purple-600">
+
+      <div class="absolute top-2 left-2">
+        <span class="bg-white px-4 py-1 text-xs">
           {{ product.category }}
         </span>
       </div>
-      
-      <h3 class="mb-1 text-sm font-semibold text-slate-900 line-clamp-2">
-        {{ product.productName }}
-      </h3>
-      
-      <p class="mb-2 text-lg font-bold text-slate-900">${{ product.productPrice }}</p>
-      
-      <div class="mb-3 flex items-center justify-between text-xs text-slate-400">
-        <span>Stock: {{ product.productStock }}</span>
-        <span *ngIf="product.productStock === 0" class="text-rose-500">Out of Stock</span>
-      </div>
-      
-      <div class="flex gap-2">
-        <a [routerLink]="['/products', product.id]" 
-           class="flex-1 rounded-lg border border-slate-200 px-3 py-2 text-center text-xs text-slate-600 hover:bg-slate-50">
-          View
-        </a>
-        <button (click)="deleteProduct(product.id!)" 
-                class="rounded-lg border border-rose-200 px-3 py-2 text-xs text-rose-600 hover:bg-rose-50">
-          Delete
-        </button>
+
+      <div class="p-2">
+        <h3 class="mb-2 text-sm font-semibold text-slate-900 line-clamp-2">
+          {{ product.productName }}
+        </h3>
+
+        <div class="flex items-center justify-between">
+          <div class="flex flex-col">
+            <span class="text-xs">Price</span>
+            <p class="mb-2 text-lg font-bold text-slate-900"> ${{ product.productPrice }}</p>
+          </div>
+          
+
+          <div
+            class="mb-3 flex items-center justify-between text-xs text-slate-400"
+          >
+            <span>Stock: {{ product.productStock }}</span>
+            <span *ngIf="product.productStock === 0" class="text-rose-500"
+              >Out of Stock</span
+            >
+          </div>
+        </div>
       </div>
     </div>
   </div>

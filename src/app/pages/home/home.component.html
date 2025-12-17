@@ -1,7 +1,22 @@
-<div class="min-h-screen flex gap-4">
-    <app-sidebar class="w-64"></app-sidebar>
+<!-- Remove gap-4 since we're using fixed positioning -->
+<div class="min-h-screen">
+    <app-sidebar class="fixed top-0 left-0 w-64 h-screen"></app-sidebar>
 
-    <main class="flex-1">
-        <router-outlet></router-outlet>
+    <main class="ml-64">
+        <div class="flex items-center justify-between p-4 bg-white sticky top-0 z-10">
+            <div class="flex items-center gap-2 bg-gray-100 p-2 rounded">
+                <i class="uil uil-search text-gray-500"></i>
+                <input type="text" placeholder="Search..." class="border border-none rounded-md px-2 py-1 outline-0 bg-transparent" />
+            </div>
+            <div class="flex items-center gap-5">
+                <i class="uil uil-bell text-2xl cursor-pointer"></i>
+                <i class="uil uil-comment-alt text-2xl cursor-pointer"></i>
+            </div>
+        </div>
+        
+        <!-- Content area with scrolling -->
+        <div class="overflow-auto">
+            <router-outlet></router-outlet>
+        </div>
     </main>
 </div>

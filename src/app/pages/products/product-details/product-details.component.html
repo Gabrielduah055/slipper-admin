@@ -1,1 +1,148 @@
-<p>product-details works!</p>
+<div class="min-h-screen bg-[#F5F7FB] px-6 py-6">
+  <div *ngIf="isLoading" class="flex items-center justify-center py-12">
+    <p class="text-slate-400">Loading product...</p>
+  </div>
+
+  <div *ngIf="!isLoading && product" class="mx-auto max-w-6xl">
+    <div class="mb-6 flex items-center justify-between">
+      <a routerLink="/products" class="text-slate-400 hover:text-slate-600">← Back to Products</a>
+      <div class="flex gap-3">
+        <button *ngIf="!isEditing" (click)="toggleEdit()" 
+                class="rounded-lg border border-purple-200 px-4 py-2 text-sm text-purple-600 hover:bg-purple-50">
+          Edit Product
+        </button>
+        <button (click)="deleteProduct()" 
+                class="rounded-lg border border-rose-200 px-4 py-2 text-sm text-rose-600 hover:bg-rose-50">
+          Delete Product
+        </button>
+      </div>
+    </div>
+
+    <!-- View Mode -->
+    <div *ngIf="!isEditing" class="grid gap-6 lg:grid-cols-2">
+      <div class="rounded-2xl bg-white p-6 shadow-sm">
+        <div class="mb-4 aspect-square overflow-hidden rounded-xl bg-slate-100">
+          <img [src]="product.productImage || 'https://via.placeholder.com/500'" 
+               [alt]="product.productName"
+               class="h-full w-full object-cover">
+        </div>
+        <div *ngIf="thumbnailImages.length > 0" class="mt-4 grid grid-cols-4 gap-2">
+          <img *ngFor="let thumb of thumbnailImages" 
+               [src]="thumb" 
+               class="aspect-square rounded-lg object-cover">
+        </div>
+      </div>
+
+      <div class="space-y-4 rounded-2xl bg-white p-6 shadow-sm">
+        <div>
+          <span class="rounded-full bg-purple-50 px-3 py-1 text-xs text-purple-600">
+            {{ product.category }}
+          </span>
+        </div>
+        <h1 class="text-3xl font-bold text-slate-900">{{ product.productName }}</h1>
+        <p class="text-2xl font-bold text-slate-900">${{ product.productPrice }}</p>
+        <div class="flex items-center gap-4 text-sm text-slate-600">
+          <span>Stock: <strong>{{ product.productStock }}</strong></span>
+        </div>
+        <div class="pt-4">
+          <h3 class="mb-2 text-sm font-semibold text-slate-700">Description</h3>
+          <p class="text-slate-600">{{ product.productDescription }}</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Edit Mode -->
+    <form *ngIf="isEditing" [formGroup]="productForm" (ngSubmit)="updateProduct()" 
+          class="space-y-6 rounded-2xl bg-white p-6 shadow-sm">
+      <!-- Same form fields as add-product.component.html -->
+      <div>
+        <label class="mb-2 block text-sm font-medium text-slate-700">Product Name *</label>
+        <input type="text" formControlName="productName" 
+               class="w-full rounded-lg border border-slate-200 px-4 py-2 focus:border-purple-500 focus:outline-none">
+      </div>
+
+      <div>
+        <label class="mb-2 block text-sm font-medium text-slate-700">Category *</label>
+        <select formControlName="productCategory" 
+                class="w-full rounded-lg border border-slate-200 px-4 py-2 focus:border-purple-500 focus:outline-none">
+          <option value="">Select Category</option>
+          <option value="Shoes">Shoes</option>
+          <option value="Bags">Bags</option>
+          <option value="Accessories">Accessories</option>
+          <option value="Clothing">Clothing</option>
+        </select>
+      </div>
+
+      <div class="grid gap-4 md:grid-cols-2">
+        <div>
+          <label class="mb-2 block text-sm font-medium text-slate-700">Price *</label>
+          <input type="number" formControlName="productPrice" step="0.01"
+                 class="w-full rounded-lg border border-slate-200 px-4 py-2 focus:border-purple-500 focus:outline-none">
+        </div>
+        <div>
+          <label class="mb-2 block text-sm font-medium text-slate-700">Stock *</label>
+          <input type="number" formControlName="productStocks"
+                 class="w-full rounded-lg border border-slate-200 px-4 py-2 focus:border-purple-500 focus:outline-none">
+        </div>
+      </div>
+
+      <div>
+        <label class="mb-2 block text-sm font-medium text-slate-700">Product Image URL *</label>
+        <input type="url" formControlName="productImage" 
+               class="w-full rounded-lg border border-slate-200 px-4 py-2 focus:border-purple-500 focus:outline-none">
+      </div>
+
+      <div>
+        <div class="mb-2 flex items-center justify-between">
+          <label class="block text-sm font-medium text-slate-700">Thumbnail Images</label>
+          <button type="button" (click)="addThumbnail()" 
+                  class="rounded-lg border border-slate-200 px-3 py-1 text-xs text-slate-600 hover:bg-slate-50">
+            + Add Thumbnail
+          </button>
+        </div>
+        <div *ngFor="let img of thumbnailImages; let i = index" class="mb-2 flex gap-2">
+          <input type="url" [(ngModel)]="thumbnailImages[i]" [ngModelOptions]="{standalone: true}"
+                 placeholder="Thumbnail image URL" 
+                 class="flex-1 rounded-lg border border-slate-200 px-4 py-2 focus:border-purple-500 focus:outline-none">
+          <button type="button" (click)="removeThumbnail(i)" 
+                  class="rounded-lg border border-rose-200 px-3 text-xs text-rose-600 hover:bg-rose-50">
+            Remove
+          </button>
+        </div>
+      </div>
+
+      <div>
+        <label class="mb-2 block text-sm font-medium text-slate-700">SKU (Optional)</label>
+        <input type="text" formControlName="sku" 
+               class="w-full rounded-lg border border-slate-200 px-4 py-2 focus:border-purple-500 focus:outline-none">
+      </div>
+
+      <div>
+        <label class="mb-2 block text-sm font-medium text-slate-700">Product Description *</label>
+        <textarea formControlName="productContent" rows="4"
+                  class="w-full rounded-lg border border-slate-200 px-4 py-2 focus:border-purple-500 focus:outline-none"></textarea>
+      </div>
+
+      <div>
+        <label class="mb-2 block text-sm font-medium text-slate-700">Status</label>
+        <select formControlName="status" 
+                class="w-full rounded-lg border border-slate-200 px-4 py-2 focus:border-purple-500 focus:outline-none">
+          <option value="published">Published</option>
+          <option value="draft">Draft</option>
+          <option value="archived">Archived</option>
+        </select>
+      </div>
+
+      <div class="flex gap-3 pt-4">
+        <button type="submit" [disabled]="isLoading || productForm.invalid"
+                class="rounded-lg bg-purple-600 px-6 py-2 text-white hover:bg-purple-700 disabled:opacity-50">
+          {{ isLoading ? 'Updating...' : 'Update Product' }}
+        </button>
+        <button type="button" (click)="toggleEdit()" 
+                class="rounded-lg border border-slate-200 px-6 py-2 text-slate-600 hover:bg-slate-50">
+          Cancel
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

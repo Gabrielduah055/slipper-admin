@@ -11,18 +11,32 @@
                 <div class="flex flex-col gap-1 w-full h-full">
                     <div class="flex flex-col gap-2 w-full text-2xl">
                         <div class="flex flex-col gap-2 w-full">
-                            <div class="flex gap-2 w-full h-full">
-                                <a routerLink="/dashboard" routerLinkActive="text-blue-500 font-bold border-b-2 border-blue-500"
-                                    class="flex items-center gap-2 w-full cursor-pointer">
+                            <div class="flex gap-2 w-full h-full hover:font-bold hover:transition-all hover:bg-blue-100 hover:text-blue-500">
+                                <a routerLink="/dashboard" routerLinkActive="text-blue-500 bg-blue-100 font-bold rounded"
+                                    class="flex items-center gap-2 w-full cursor-pointer p-2">
                                     <i class="uil uil-estate"></i>
-                                    <span class=" text-sm text-gray-900 hover:font-bold transition-all">Dashboard</span>
+                                    <span class=" text-sm  ">Dashboard</span>
                                 </a>
                             </div>
-                            <div class="flex gap-2 w-full h-full">
-                                <a routerLink="/products" routerLinkActive="text-blue-500 text-blue-500 font-bold border-b-2 border-blue-500"
-                                    class="flex items-center gap-2 w-full cursor-pointer">
-                                    <i class="uil uil-shopping-cart"></i>
-                                    <span class=" text-sm text-gray-900 hover:font-bold hover:transition-all">Products</span>
+                            <div class="flex gap-2 w-full h-full hover:font-bold hover:transition-all hover:bg-blue-100 hover:text-blue-500">
+                                <a routerLink="/products" routerLinkActive="text-blue-500 bg-blue-100 font-bold rounded"
+                                    class="flex items-center gap-2 w-full cursor-pointer p-2">
+                                    <i class="uil uil-list-ul"></i>
+                                    <span class=" text-sm">Products</span>
+                                </a>
+                            </div>
+                            <div class="flex gap-2 w-full h-full hover:font-bold hover:transition-all hover:bg-blue-100 hover:text-blue-500">
+                                <a routerLink="/orders" routerLinkActive="text-blue-500 bg-blue-100 font-bold rounded"
+                                    class="flex items-center gap-2 w-full cursor-pointer p-2">
+                                    <i class="uil uil-shopping-cart-alt"></i>
+                                    <span class=" text-sm">Orders</span>
+                                </a>
+                            </div>
+                            <div class="flex gap-2 w-full h-full hover:font-bold hover:transition-all hover:bg-blue-100 hover:text-blue-500">
+                                <a routerLink="/customers" routerLinkActive="text-blue-500 bg-blue-100 font-bold rounded"
+                                    class="flex items-center gap-2 w-full cursor-pointer p-2">
+                                    <i class="uil uil-users-alt"></i>
+                                    <span class=" text-sm">Customers</span>
                                 </a>
                             </div>
                         </div>

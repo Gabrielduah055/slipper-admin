@@ -23,12 +23,14 @@ export class ProductsService {
   //getting all the products
   getProducts(): Observable<Products[]> {
     return this.http.get<{products: Products[]}>(this.baseUrl, this.authHeaders()).pipe(
-      map(res => res.products)
+      map(res => res.products.map(p => ({...p, id: p._id})))
     )
   }
 
   getProduct(id: string): Observable<Products> {
-    return this.http.get<Products>(`${this.baseUrl}/${id}`, this.authHeaders());
+    return this.http.get<{product: Products}>(`${this.baseUrl}/${id}`, this.authHeaders()).pipe(
+      map(res => res.product)
+    );
   }
 
   addProduct(product: Products): Observable<Products> {

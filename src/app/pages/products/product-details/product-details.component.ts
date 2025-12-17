@@ -1,13 +1,13 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
-import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
+import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { ProductsService } from '../../../service/products.service';
 import { Products } from '../../../interface/product_interface';
 
 @Component({
     selector: 'app-product-details',
-    imports: [CommonModule, ReactiveFormsModule, RouterLink],
+    imports: [CommonModule, ReactiveFormsModule, RouterLink, FormsModule],
     templateUrl: './product-details.component.html',
     styleUrl: './product-details.component.css'
 })
@@ -43,7 +43,7 @@ export class ProductDetailsComponent implements OnInit {
     this.productService.getProduct(id).subscribe({
       next: (product) => {
         this.product = product;
-        this.thumbnailImages = product.productThumbnailImages || [];
+        this.thumbnailImages = product.productThumnailImages || [];
         this.productForm.patchValue(product);
         this.isLoading = false;
       },
@@ -69,17 +69,17 @@ export class ProductDetailsComponent implements OnInit {
   }
 
   updateProduct() {
-    if (this.productForm.valid && this.product?.id) {
+    if (this.productForm.valid && this.product?._id) {
       this.isLoading = true;
       const productData = {
         ...this.productForm.value,
-        productThumbnailImages: this.thumbnailImages.filter(img => img.trim() !== '')
+        productThumnailImages: this.thumbnailImages.filter(img => img.trim() !== '')
       };
-      this.productService.updateProduct(this.product.id, productData).subscribe({
+      this.productService.updateProduct(this.product._id, productData).subscribe({
         next: () => {
           this.isLoading = false;
           this.isEditing = false;
-          this.loadProduct(this.product!.id!);
+          this.loadProduct(this.product!._id!);
         }, 
         error: (err) => {
           console.error('Error updating product: ', err);
@@ -88,5 +88,21 @@ export class ProductDetailsComponent implements OnInit {
         }
       })
       }
+  }
+  
+  deleteProduct() {
+    if (this.product?._id && confirm('Are you sure you want to delete this product?')) {
+      this.isLoading = true;
+      this.productService.deleteProduct(this.product._id).subscribe({
+        next: () => {
+          this.router.navigate(['/products']);
+        }, 
+        error: (err) => {
+          console.error('Error deleting product:', err);
+          this.isLoading = false;
+          alert('Failed to delete product')
+        }
+      })
     }
+  }
 }
