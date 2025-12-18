@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { environment } from '../environment/environment';
 import { Inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { catchError, Observable } from 'rxjs';
+import { catchError, Observable,tap } from 'rxjs';
 import { Admin, login } from '../interface/auth_interface';
 
 
@@ -20,6 +20,14 @@ export class AuthService {
 
   login(credentials: { userName: string, password: string }): Observable<login> {
     return this.http.post<login>(`${this.baseUrl}/admin/login`, credentials).pipe(
+      tap((res) => {
+        if (res && (res as any).token) {
+          localStorage.setItem('token', (res as any).token);
+        }
+        if (res && (res as any).admin) {
+          localStorage.setItem('admin', JSON.stringify((res as any).admin))
+        }
+      }),
       catchError((error) => {
         if (error.status === 401) {
           throw new Error('Unauthorized: Invalid username or password');
@@ -29,18 +37,10 @@ export class AuthService {
     );
   }
 
-  logout(): Observable<void> {
-    return this.http.post<void>(`${this.baseUrl}/admin/logout`, {}, {
-      headers: {
-        'Authorization' : `Bearer ${localStorage.getItem('token')}`
-      }
-    }).pipe(
-      catchError((error) => {
-        console.log('logout error', error);
-        throw new Error(`Logout failed: ${error.status} - ${error.error}`);
-      })
-    )
-  }
+  logout(): void {
+   localStorage.removeItem('token');
+   localStorage.removeItem('admin');
+ }
 
   isAuthencated(): boolean {
     return !!localStorage.getItem('token')

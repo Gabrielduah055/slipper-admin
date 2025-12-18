@@ -88,37 +88,35 @@
         <!-- Product Media -->
         <section class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
           <h3 class="text-lg font-bold text-gray-900 mb-6 flex items-center gap-2">
-            <i class="uil uil-image"></i>
+            <i class="uil uil-image text-2xl text-blue-500"></i>
             Product Media
           </h3>
           
           <!-- Main Image Upload -->
           <div class="relative flex flex-col items-center justify-center w-full h-48 rounded-xl border-2 border-dashed border-gray-300 hover:border-purple-300 bg-gray-50 transition-all cursor-pointer group"
-               (click)="fileInput.click()">
-            <div class="flex flex-col items-center justify-center pt-5 pb-6">
-              <div class="w-12 h-12 rounded-full bg-purple-100 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
-                <span class="material-symbols-outlined text-purple-600 text-2xl">cloud_upload</span>
-              </div>
-              <p class="mb-1 text-sm text-gray-600">
-                <span class="font-semibold text-purple-600">Click to upload</span> or drag and drop
-              </p>
-              <p class="text-xs text-gray-500">SVG, PNG, JPG or GIF (MAX. 800x400px)</p>
-            </div>
+               (click)="!productForm.get('productImage')?.value && fileInput.click()">
+            <ng-container *ngIf="!productForm.get('productImage')?.value; else mainImagePreview">
+    <div class="flex flex-col items-center justify-center pt-5 pb-6">
+      <div class="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
+        <i class="uil uil-image text-4xl text-blue-500"></i>
+      </div>
+      <p class="mb-1 text-sm text-gray-600">
+        Click to upload or drag and drop
+      </p>
+      <p class="text-xs text-gray-500">SVG, PNG, JPG or GIF (MAX. 800x400px)</p>
+    </div>
+  </ng-container>
+  <ng-template #mainImagePreview>
+    <img [src]="productForm.get('productImage')?.value"
+         alt="Product preview"
+         class="w-full h-full object-cover rounded-xl">
+    <button type="button"
+            (click)="removeMainImage(); $event.stopPropagation()"
+            class="absolute top-2 right-2 p-1 bg-red-500 text-white rounded-full hover:bg-red-600">
+      <span class="material-symbols-outlined text-[18px]">delete</span>
+    </button>
+  </ng-template>
             <input #fileInput type="file" accept="image/*" (change)="onFileSelected($event)" class="hidden">
-          </div>
-          
-          <!-- Image Preview -->
-          <div *ngIf="productForm.get('productImage')?.value" class="mt-4">
-            <div class="aspect-video rounded-lg overflow-hidden border border-gray-200 relative">
-              <img [src]="productForm.get('productImage')?.value" 
-                   alt="Product preview" 
-                   class="w-full h-full object-cover">
-              <button type="button" 
-                      (click)="removeMainImage()"
-                      class="absolute top-2 right-2 p-1 bg-red-500 text-white rounded-full hover:bg-red-600">
-                <span class="material-symbols-outlined text-[18px]">delete</span>
-              </button>
-            </div>
           </div>
           
           <!-- Thumbnails -->
@@ -126,10 +124,16 @@
             <div class="flex items-center justify-between mb-4">
               <label class="text-sm font-medium text-gray-700">Additional Images</label>
               <button type="button" 
-                      (click)="addThumbnail()"
+                      (click)="thumbnailInput.click()"
                       class="rounded-lg border border-gray-300 px-3 py-1 text-xs text-gray-600 hover:bg-gray-50">
                 + Add Image
               </button>
+              <input #thumbnailInput
+                     type="file"
+                     accept="image/*"
+                     multiple
+                     class="hidden"
+                     (change)="onThumbnailsSelected($event)">
             </div>
             
             <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
@@ -150,7 +154,7 @@
               
               <!-- Add Thumbnail Button -->
               <button type="button" 
-                      (click)="addThumbnail()"
+                      (click)="thumbnailInput.click()"
                       class="aspect-square rounded-lg border border-dashed border-gray-300 flex items-center justify-center hover:bg-gray-50 transition-colors">
                 <span class="material-symbols-outlined text-gray-400">add</span>
               </button>
@@ -161,7 +165,7 @@
         <!-- Pricing & Inventory -->
         <section class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
           <h3 class="text-lg font-bold text-gray-900 mb-6 flex items-center gap-2">
-            <span class="material-symbols-outlined text-purple-600">payments</span>
+            <i class="uil uil-credit-card text-3xl text-blue-500"></i>
             Pricing & Inventory
           </h3>
           
@@ -187,6 +191,12 @@
                        formControlName="productStock"
                        class="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-gray-900 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 transition-all">
               </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Size *</label>
+                <input type="number" 
+                       formControlName="productSize"
+                       class="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-gray-900 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 transition-all">
+              </div>
             </div>
           </div>
         </section>
@@ -207,7 +217,7 @@
             </div>
             
             <select formControlName="status"
-                    class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-900 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 transition-all">
+                    class="w-full rounded-lg border bg-blue-50 border-gray-300 px-3 py-2 text-sm text-gray-900 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 transition-all">
               <option value="active">Active</option>
               <option value="draft">Draft</option>
               <option value="out-of-stock">Out of Stock</option>
@@ -231,7 +241,7 @@
             <div>
               <label class="block text-sm font-medium text-gray-700 mb-2">Category *</label>
               <select formControlName="category"
-                      class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-900 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 transition-all">
+                      class="w-full rounded-lg border bg-blue-50 border-gray-300 px-3 py-2 text-sm text-gray-900 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 transition-all">
                 <option value="">Select Category</option>
                 <option value="Clothing">Clothing</option>
                 <option value="Electronics">Electronics</option>
@@ -241,41 +251,7 @@
                 <option value="Kitchen">Kitchen</option>
               </select>
             </div>
-            
-            <!-- Sub Category (Optional) -->
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-2">Sub Category</label>
-              <select formControlName="subCategory"
-                      class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-900 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 transition-all">
-                <option value="">Select Sub Category</option>
-                <option value="T-Shirts">T-Shirts</option>
-                <option value="Jackets">Jackets</option>
-                <option value="Pants">Pants</option>
-              </select>
             </div>
-            
-            <!-- Tags -->
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-2">Tags</label>
-              <input type="text" 
-                     #tagInput
-                     (keyup.enter)="addTag(tagInput.value); tagInput.value=''"
-                     placeholder="Enter tags..."
-                     class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-900 mb-2 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 transition-all">
-              
-              <div class="flex flex-wrap gap-2">
-                <span *ngFor="let tag of tags" 
-                      class="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-gray-100 text-gray-600">
-                  {{ tag }}
-                  <button type="button" 
-                          (click)="removeTag(tag)"
-                          class="ml-1 hover:text-red-500">
-                    <span class="material-symbols-outlined text-[14px]">close</span>
-                  </button>
-                </span>
-              </div>
-            </div>
-          </div>
         </div>
       </div>
     </form>

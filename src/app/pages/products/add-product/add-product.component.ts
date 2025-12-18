@@ -25,6 +25,7 @@ export class AddProductComponent {
     productPrice: ['', [Validators.required, Validators.min(0)]],
     productImage: ['', Validators.required],
     productStock: ['', [Validators.required, Validators.min(0)]],
+    productSize: ['', Validators.required],
     productDescription: ['', Validators.required],
   });
 
@@ -39,6 +40,21 @@ export class AddProductComponent {
       };
       reader.readAsDataURL(file);
     }
+  }
+
+  onThumbnailsSelected(event: any) {
+    const files: FileList = event.target.files;
+    if (!files || files.length === 0) return;
+
+    Array.from(files).forEach(file => {
+      const reader = new FileReader();
+      reader.onload = () => {
+        this.thumbnailImages.push(reader.result as string);
+      }
+      reader.readAsDataURL(file)
+    })
+
+    event.target.value = ''
   }
 
   removeMainImage() {
