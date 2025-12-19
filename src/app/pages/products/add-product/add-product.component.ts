@@ -18,6 +18,7 @@ export class AddProductComponent {
   isLoading = false;
   thumbnailImages: string[] = [];
   tags: string[] = ['New Arrival', 'Summer'];
+  categories: string[] = [];
 
   productForm: FormGroup = this.fb.group({
     productName: ['', [Validators.required, Validators.minLength(3)]],
@@ -28,6 +29,15 @@ export class AddProductComponent {
     productSize: ['', Validators.required],
     productDescription: ['', Validators.required],
   });
+
+  ngOnInit(): void {
+    this.productService.getCategories().subscribe({
+      next: (categories) => (this.categories = categories),
+      error: (err) => {
+        console.error('Failed to load categories:', err);
+      }
+    })
+  }
 
   onFileSelected(event: any) {
     const file = event.target.files[0];

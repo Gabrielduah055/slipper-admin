@@ -44,4 +44,11 @@ export class ProductsService {
   deleteProduct(id: string): Observable<void> {
     return this.http.delete<void>(`${this.baseUrl}/${id}`, this.authHeaders());
   }
+
+  getCategories(): Observable<string[]> {
+    return this.http.get<{ message: String; categories: string[] }>
+   (
+      `${this.baseUrl}/categories`, this.authHeaders()).pipe(
+        map(res => res.categories)
+  )}
 }
