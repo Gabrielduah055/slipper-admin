@@ -33,7 +33,7 @@ export class ProductsService {
     );
   }
 
-  addProduct(product: Products): Observable<Products> {
+  addProduct(product: FormData): Observable<Products> {
     return this.http.post<Products>(this.baseUrl, product, this.authHeaders())
   }
 
