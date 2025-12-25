@@ -4,8 +4,11 @@ export interface Products {
   productName: string;
   productPrice: number;
   productImage: string;
-  productThumnailImages: string[];
+  productThumbnailImages: string[];
   productStock: number;
   productSize: number;
   productDescription: string;
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
 }

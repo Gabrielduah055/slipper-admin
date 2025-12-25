@@ -6,10 +6,10 @@ import { ProductsService } from '../../../service/products.service';
 import { Products } from '../../../interface/product_interface';
 
 @Component({
-    selector: 'app-product-details',
-    imports: [CommonModule, ReactiveFormsModule, RouterLink, FormsModule],
-    templateUrl: './product-details.component.html',
-    styleUrl: './product-details.component.css'
+  selector: 'app-product-details',
+  imports: [CommonModule, ReactiveFormsModule, RouterLink, FormsModule],
+  templateUrl: './product-details.component.html',
+  styleUrl: './product-details.component.css',
 })
 export class ProductDetailsComponent implements OnInit {
   private route = inject(ActivatedRoute);
@@ -20,7 +20,9 @@ export class ProductDetailsComponent implements OnInit {
   product: Products | null = null;
   isLoading = false;
   isEditing = false;
-  thumbnailImages: string[] = []
+  thumbnailImages: string[] = [];
+  currentImage: string = '';
+  selectedThumbnailImageIndex: number = -1;
 
   productForm: FormGroup = this.fb.group({
     productName: ['', [Validators.required, Validators.minLength(3)]],
@@ -34,7 +36,7 @@ export class ProductDetailsComponent implements OnInit {
   ngOnInit() {
     const id = this.route.snapshot.paramMap.get('id');
     if (id) {
-      this.loadProduct(id)
+      this.loadProduct(id);
     }
   }
 
@@ -43,7 +45,10 @@ export class ProductDetailsComponent implements OnInit {
     this.productService.getProduct(id).subscribe({
       next: (product) => {
         this.product = product;
-        this.thumbnailImages = product.productThumnailImages || [];
+        this.thumbnailImages = product.productThumbnailImages || [];
+        this.currentImage =
+          product.productImage || 'https://via.placeholder.com/500';
+        this.selectedThumbnailImageIndex = -1;
         this.productForm.patchValue(product);
         this.isLoading = false;
       },
@@ -52,12 +57,29 @@ export class ProductDetailsComponent implements OnInit {
         this.isLoading = false;
         alert('Product not found');
         this.router.navigate(['/products']);
-      }
-    })
+      },
+    });
+  }
+
+  // Handle thumbnail click - switch main image
+  selectThumbnail(index: number) {
+    if (this.thumbnailImages[index]) {
+      this.currentImage = this.thumbnailImages[index];
+      this.selectedThumbnailImageIndex = index;
+    }
+  }
+
+  // Reset to main product image
+  resetMainImage() {
+    if (this.product) {
+      this.currentImage =
+        this.product.productImage || 'https://via.placeholder.com/500';
+      this.selectedThumbnailImageIndex = -1;
+    }
   }
 
   toggleEdit() {
-    this.isEditing = !this.isEditing
+    this.isEditing = !this.isEditing;
   }
 
   addThumbnail() {
@@ -65,7 +87,13 @@ export class ProductDetailsComponent implements OnInit {
   }
 
   removeThumbnail(index: number) {
-    this.thumbnailImages.slice(index, 1)
+    this.thumbnailImages.slice(index, 1);
+    //reset to main image
+    if (this.selectedThumbnailImageIndex === index) {
+      this.resetMainImage();
+    } else if (this.selectedThumbnailImageIndex > index) {
+      this.selectedThumbnailImageIndex--;
+    }
   }
 
   updateProduct() {
@@ -73,36 +101,43 @@ export class ProductDetailsComponent implements OnInit {
       this.isLoading = true;
       const productData = {
         ...this.productForm.value,
-        productThumnailImages: this.thumbnailImages.filter(img => img.trim() !== '')
+        productThumnailImages: this.thumbnailImages.filter(
+          (img) => img.trim() !== ''
+        ),
       };
-      this.productService.updateProduct(this.product._id, productData).subscribe({
-        next: () => {
-          this.isLoading = false;
-          this.isEditing = false;
-          this.loadProduct(this.product!._id!);
-        }, 
-        error: (err) => {
-          console.error('Error updating product: ', err);
-          this.isLoading = false;
-          alert('Failed to update product');
-        }
-      })
-      }
+      this.productService
+        .updateProduct(this.product._id, productData)
+        .subscribe({
+          next: () => {
+            this.isLoading = false;
+            this.isEditing = false;
+            this.loadProduct(this.product!._id!);
+          },
+          error: (err) => {
+            console.error('Error updating product: ', err);
+            this.isLoading = false;
+            alert('Failed to update product');
+          },
+        });
+    }
   }
-  
+
   deleteProduct() {
-    if (this.product?._id && confirm('Are you sure you want to delete this product?')) {
+    if (
+      this.product?._id &&
+      confirm('Are you sure you want to delete this product?')
+    ) {
       this.isLoading = true;
       this.productService.deleteProduct(this.product._id).subscribe({
         next: () => {
           this.router.navigate(['/products']);
-        }, 
+        },
         error: (err) => {
           console.error('Error deleting product:', err);
           this.isLoading = false;
-          alert('Failed to delete product')
-        }
-      })
+          alert('Failed to delete product');
+        },
+      });
     }
   }
 }
