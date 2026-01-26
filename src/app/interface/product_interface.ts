@@ -11,4 +11,7 @@ export interface Products {
   isActive: boolean;
   createdAt: string;
   updatedAt: string;
+
+
+
 }
