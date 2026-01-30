@@ -1,1 +1,63 @@
-<p>orders works!</p>
+<div class="p-6 bg-slate-50 min-h-screen">
+  <div class="mb-8 flex justify-between items-center">
+    <div>
+      <h1 class="text-2xl font-bold text-gray-800">Orders</h1>
+      <p class="text-gray-500">Manage and track orders</p>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="loading" class="flex justify-center items-center py-20">
+    <div class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-purple-600"></div>
+  </div>
+
+  <!-- Table -->
+  <div *ngIf="!loading" class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+    <div class="overflow-x-auto">
+      <table class="w-full text-left">
+        <thead class="bg-purple-50 border-b border-purple-100">
+          <tr>
+            <th class="px-6 py-4 text-xs font-semibold text-purple-800 uppercase tracking-wider">Order ID</th>
+            <th class="px-6 py-4 text-xs font-semibold text-purple-800 uppercase tracking-wider">Customer</th>
+            <th class="px-6 py-4 text-xs font-semibold text-purple-800 uppercase tracking-wider">Date</th>
+            <th class="px-6 py-4 text-xs font-semibold text-purple-800 uppercase tracking-wider">Total</th>
+            <th class="px-6 py-4 text-xs font-semibold text-purple-800 uppercase tracking-wider">Status</th>
+            <th class="px-6 py-4 text-xs font-semibold text-purple-800 uppercase tracking-wider text-right">Actions</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-gray-50">
+          <tr *ngFor="let order of orders" class="hover:bg-purple-50/30 transition-colors">
+            <td class="px-6 py-4 text-gray-900 font-medium">#{{ order._id | slice:-6 }}</td>
+            <td class="px-6 py-4 text-gray-600">
+              <div class="font-medium text-gray-900">{{ order.customer ? order.customer.firstName + ' ' + order.customer.lastName : 'Unknown' }}</div>
+              <div class="text-xs text-gray-500">{{ order.customer ? order.customer.email : '' }}</div>
+            </td>
+            <td class="px-6 py-4 text-gray-500 text-sm">{{ order.createdAt | date:'medium' }}</td>
+            <td class="px-6 py-4 font-medium text-gray-900">${{ order.totalAmount | number:'1.2-2' }}</td>
+            <td class="px-6 py-4">
+              <span [class]="'px-3 py-1 rounded-full text-xs font-medium ' + getStatusClass(order.status)">
+                {{ order.status | titlecase }}
+              </span>
+            </td>
+            <td class="px-6 py-4 text-right">
+              <a [routerLink]="['/orders', order._id]" class="text-purple-600 hover:text-purple-800 font-medium text-sm px-3 py-1 rounded hover:bg-purple-50 transition-colors">
+                View
+              </a>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Empty State -->
+    <div *ngIf="orders.length === 0" class="text-center py-16">
+      <div class="bg-purple-50 text-purple-500 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-8 h-8">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 10.5V6a3.75 3.75 0 1 0-7.5 0v4.5m11.356-1.993 1.263 12c.07.665-.45 1.243-1.119 1.243H4.25a1.125 1.125 0 0 1-1.12-1.243l1.264-12A1.125 1.125 0 0 1 5.513 7.5h12.974c.576 0 1.059.435 1.119 1.007ZM8.625 10.5a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm7.5 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Z" />
+        </svg>
+      </div>
+      <h3 class="text-lg font-medium text-gray-900">No orders found</h3>
+      <p class="text-gray-500 mt-1">Orders will appear here once customers make purchases.</p>
+    </div>
+  </div>
+</div>
