@@ -1,0 +1,94 @@
+.admin-shell {
+    background: #f6f7fb;
+}
+
+.topbar {
+    display: flex;
+    height: 4.25rem;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid rgba(226, 232, 240, 0.9);
+    background: rgba(255, 255, 255, 0.88);
+    padding: 0 2rem;
+    backdrop-filter: blur(14px);
+}
+
+.global-search {
+    display: flex;
+    height: 2.5rem;
+    width: min(24rem, 45vw);
+    align-items: center;
+    gap: 0.65rem;
+    border: 1px solid #e2e8f0;
+    border-radius: 0.7rem;
+    background: #f8fafc;
+    padding: 0 0.75rem;
+    color: #94a3b8;
+    transition: border-color 160ms ease, box-shadow 160ms ease, background 160ms ease;
+}
+
+.global-search:focus-within {
+    border-color: #c4b5fd;
+    background: white;
+    box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.08);
+}
+
+.global-search input {
+    min-width: 0;
+    flex: 1;
+    border: none;
+    background: transparent;
+    color: #334155;
+    font-size: 0.78rem;
+    outline: none;
+}
+
+.search-hint {
+    border: 1px solid #e2e8f0;
+    border-radius: 0.35rem;
+    background: white;
+    padding: 0.12rem 0.35rem;
+    color: #a1a9b8;
+    font-size: 0.6rem;
+}
+
+.topbar-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
+}
+
+.topbar-actions button {
+    position: relative;
+    display: grid;
+    height: 2.45rem;
+    width: 2.45rem;
+    cursor: pointer;
+    place-items: center;
+    border: 1px solid #e8eaf0;
+    border-radius: 0.7rem;
+    background: white;
+    color: #64748b;
+    font-size: 1.15rem;
+    transition: background 160ms ease, color 160ms ease;
+}
+
+.topbar-actions button:hover {
+    background: #f5f3ff;
+    color: #6d28d9;
+}
+
+.notification-button span {
+    position: absolute;
+    top: 0.55rem;
+    right: 0.55rem;
+    height: 0.38rem;
+    width: 0.38rem;
+    border: 1px solid white;
+    border-radius: 50%;
+    background: #ef4444;
+}
+
+.content-area {
+    min-height: calc(100vh - 4.25rem);
+}

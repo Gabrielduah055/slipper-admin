@@ -1,36 +1,32 @@
-import { Injectable } from '@angular/core';
-import { CanActivate, Router, RouterStateSnapshot, ActivatedRouteSnapshot, GuardResult, MaybeAsync } from '@angular/router';
+import { inject, Injectable } from '@angular/core';
+import { CanActivate, Router, UrlTree } from '@angular/router';
+import { map, Observable } from 'rxjs';
+import { AuthService } from '../service/auth.service';
 
-@Injectable({
-    providedIn: 'root'
-})
-
+@Injectable({ providedIn: 'root' })
 export class AuthGuard implements CanActivate {
-    constructor(private router: Router) { }
+  private readonly authService = inject(AuthService);
+  private readonly router = inject(Router);
 
-    canActivate(route: ActivatedRouteSnapshot, state: RouterStateSnapshot):boolean{
-        const token = localStorage.getItem('token');
-    
+  canActivate(): Observable<boolean | UrlTree> {
+    return this.authService.waitForInitialization().pipe(
+      map((state) => state.status === 'authenticated'
+        ? true
+        : this.router.createUrlTree(['/login']))
+    );
+  }
+}
 
+@Injectable({ providedIn: 'root' })
+export class LoginGuard implements CanActivate {
+  private readonly authService = inject(AuthService);
+  private readonly router = inject(Router);
 
-        //loading home page when the token isn't present
-        if (!token) {
-            this.router.navigate(['/login']);
-            return false;
-        }
-
-        //if token isn't present
-        if (state.url === '/login' && token) {
-            this.router.navigate(['/dashboard']);
-            return false;
-        }
-
-        try {
-            return true;
-        } catch (error) {
-            localStorage.removeItem('token');
-            this.router.navigate(['/login']);
-            return false;
-        }
-    }
+  canActivate(): Observable<boolean | UrlTree> {
+    return this.authService.waitForInitialization().pipe(
+      map((state) => state.status === 'authenticated'
+        ? this.router.createUrlTree(['/dashboard'])
+        : true)
+    );
+  }
 }

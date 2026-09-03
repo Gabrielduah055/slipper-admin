@@ -1,61 +1,48 @@
-<div class="p-6 bg-slate-50 min-h-screen">
-  <div class="mb-8 flex justify-between items-center">
-    <div>
-      <h1 class="text-2xl font-bold text-gray-800">Customers</h1>
-      <p class="text-gray-500">Manage your customer base</p>
-    </div>
-  </div>
+<div class="customers-page min-h-screen px-6 py-7 lg:px-8">
+  <header class="page-heading">
+    <div><p class="section-kicker">Relationships</p><h1>Customers</h1><p>Understand and support the people buying from your store.</p></div>
+    <div class="total-chip"><i class="uil uil-users-alt"></i><strong>{{ allCustomers.length }}</strong><span>Total customers</span></div>
+  </header>
 
-  <!-- Loading State -->
-  <div *ngIf="loading" class="flex justify-center items-center py-20">
-    <div class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-purple-600"></div>
-  </div>
+  <section class="summary-grid" aria-label="Customer summary">
+    <article><div class="summary-icon total"><i class="uil uil-users-alt"></i></div><div><span>Customer base</span><strong>{{ allCustomers.length }}</strong></div></article>
+    <article><div class="summary-icon recent"><i class="uil uil-user-plus"></i></div><div><span>New in 30 days</span><strong>{{ recentCustomers }}</strong></div></article>
+    <article><div class="summary-icon address"><i class="uil uil-map-marker"></i></div><div><span>Addresses saved</span><strong>{{ customersWithAddress }}</strong></div></article>
+  </section>
 
-  <!-- Table -->
-  <div *ngIf="!loading" class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-    <div class="overflow-x-auto">
-      <table class="w-full text-left">
-        <thead class="bg-purple-50 border-b border-purple-100">
-          <tr>
-            <th class="px-6 py-4 text-xs font-semibold text-purple-800 uppercase tracking-wider">Name</th>
-            <th class="px-6 py-4 text-xs font-semibold text-purple-800 uppercase tracking-wider">Email</th>
-            <th class="px-6 py-4 text-xs font-semibold text-purple-800 uppercase tracking-wider">Phone</th>
-            <th class="px-6 py-4 text-xs font-semibold text-purple-800 uppercase tracking-wider">Joined</th>
-            <th class="px-6 py-4 text-xs font-semibold text-purple-800 uppercase tracking-wider text-right">Actions</th>
-          </tr>
-        </thead>
-        <tbody class="divide-y divide-gray-50">
-          <tr *ngFor="let customer of customers" class="hover:bg-purple-50/30 transition-colors group">
-            <td class="px-6 py-4">
-              <div class="flex items-center">
-                <div class="h-10 w-10 rounded-full bg-purple-100 text-purple-600 flex items-center justify-center font-bold text-lg mr-3">
-                  {{ customer.firstName.charAt(0).toUpperCase() }}
-                </div>
-                <span class="font-medium text-gray-700">{{ customer.firstName }} {{ customer.lastName }}</span>
-              </div>
-            </td>
-            <td class="px-6 py-4 text-gray-600">{{ customer.email }}</td>
-            <td class="px-6 py-4 text-gray-600">{{ customer.phoneNumber }}</td>
-            <td class="px-6 py-4 text-gray-500 text-sm">{{ customer.createdAt | date:'mediumDate' }}</td>
-            <td class="px-6 py-4 text-right">
-              <a [routerLink]="['/customers', customer._id]" class="text-purple-600 hover:text-purple-800 font-medium text-sm px-3 py-1 rounded hover:bg-purple-50 transition-colors">
-                View
-              </a>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-    
-    <!-- Empty State -->
-    <div *ngIf="customers.length === 0" class="text-center py-16">
-      <div class="bg-purple-50 text-purple-500 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-8 h-8">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" />
-        </svg>
+  <section class="filter-panel">
+    <div class="search-wrap"><i class="uil uil-search"></i><input type="search" [(ngModel)]="searchTerm" (ngModelChange)="applyFilter()" placeholder="Search name, email or phone" aria-label="Search customers" /></div>
+    @if (searchTerm) { <button type="button" class="clear-button" (click)="searchTerm = ''; applyFilter()"><i class="uil uil-times"></i>Clear</button> }
+  </section>
+
+  @if (loading) {
+    <div class="loading-state"><span></span><p>Loading customers…</p></div>
+  } @else if (loadError) {
+    <div class="empty-state error"><div><i class="uil uil-exclamation-triangle"></i></div><h2>Customers could not be loaded</h2><p>Check your connection and try again.</p><button type="button" (click)="loadCustomers()">Try again</button></div>
+  } @else if (customers.length === 0) {
+    <div class="empty-state"><div><i class="uil uil-users-alt"></i></div><h2>No matching customers</h2><p>{{ allCustomers.length ? 'Try a different name, email or phone number.' : 'Customer profiles will appear here after their first order.' }}</p>@if (allCustomers.length) { <button type="button" (click)="searchTerm = ''; applyFilter()">Clear search</button> }</div>
+  } @else {
+    <section class="table-panel">
+      <div class="table-title"><div><h2>Customer directory</h2><p>Contact details and account activity</p></div><span>{{ customers.length }} result{{ customers.length === 1 ? '' : 's' }}</span></div>
+      <div class="table-scroll">
+        <table>
+          <thead><tr><th>Customer</th><th>Contact</th><th>Location</th><th>Joined</th><th>Updated</th><th><span class="sr-only">Action</span></th></tr></thead>
+          <tbody>
+            <tr *ngFor="let customer of paginatedCustomers">
+              <td><div class="customer-cell"><span>{{ customer.firstName.charAt(0) }}{{ customer.lastName.charAt(0) }}</span><div><strong>{{ customer.firstName }} {{ customer.lastName }}</strong><small>ID · {{ customer._id | slice:-6 }}</small></div></div></td>
+              <td><strong class="contact-main">{{ customer.email }}</strong><small class="contact-sub">{{ customer.phoneNumber }}</small></td>
+              <td><span class="address-value"><i class="uil uil-map-marker"></i>{{ customer.address || 'Not provided' }}</span></td>
+              <td><strong class="date-main">{{ customer.createdAt | date:'MMM d, y' }}</strong></td>
+              <td><span class="updated-value">{{ customer.updatedAt | date:'MMM d, y' }}</span></td>
+              <td class="action-cell"><a [routerLink]="['/customers', customer._id]" aria-label="View customer"><i class="uil uil-arrow-up-right"></i></a></td>
+            </tr>
+          </tbody>
+        </table>
       </div>
-      <h3 class="text-lg font-medium text-gray-900">No customers yet</h3>
-      <p class="text-gray-500 mt-1">Customers will appear here once orders are placed.</p>
-    </div>
-  </div>
+      <footer class="pagination-bar">
+        <p>Showing <strong>{{ resultStart }}–{{ resultEnd }}</strong> of <strong>{{ customers.length }}</strong></p>
+        @if (totalPages > 1) { <nav aria-label="Customers pagination"><button type="button" (click)="goToPage(currentPage - 1)" [disabled]="currentPage === 1"><i class="uil uil-angle-left"></i></button><button *ngFor="let page of visiblePages" type="button" (click)="goToPage(page)" [class.active]="page === currentPage">{{ page }}</button><button type="button" (click)="goToPage(currentPage + 1)" [disabled]="currentPage === totalPages"><i class="uil uil-angle-right"></i></button></nav> }
+      </footer>
+    </section>
+  }
 </div>

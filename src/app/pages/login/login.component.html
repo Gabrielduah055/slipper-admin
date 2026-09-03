@@ -1,41 +1,84 @@
 <app-loading [isLoading]="isLoading"></app-loading>
-<div class="min-h-screen grid grid-cols-1 md:grid-cols-2">
+<div class="login-shell min-h-screen grid grid-cols-1 lg:grid-cols-2">
   <div
-    class="hidden md:block bg-cover bg-center"
+    class="login-visual hidden lg:flex bg-cover bg-center"
     style="background-image: url('image.png')"
-  ></div>
+  >
+    <div class="visual-overlay"></div>
+    <div class="visual-copy">
+      <span class="eyebrow">Slipper administration</span>
+      <h1>Everything your store needs, in one place.</h1>
+      <p>Track products, orders and customers from a focused workspace built for daily operations.</p>
+    </div>
+  </div>
 
-  <!-- Right side form -->
-  <div class="flex flex-col justify-center items-center px-4 sm:px-8 md:px-12">
-    <div class="w-full max-w-md space-y-6">
-      <div class="text-center">
-        <img src="logo.png" alt="Logo" class="mx-auto w-48" />
-        <h2 class="text-2xl font-bold text-gray-900">Login</h2>
+  <div class="login-panel flex flex-col justify-center items-center px-5 py-10 sm:px-10 lg:px-16">
+    <div class="w-full max-w-md">
+      <div class="mb-8">
+        <div class="brand-mark mb-8">
+          <img src="logo.png" alt="Slipper Admin" />
+        </div>
+        <p class="mb-2 text-sm font-semibold uppercase tracking-widest text-purple-600">Welcome back</p>
+        <h2 class="text-3xl font-bold tracking-tight text-slate-950">Sign in to your account</h2>
+        <p class="mt-2 text-sm leading-6 text-slate-500">Enter your administrator credentials to continue.</p>
       </div>
 
-      <div class="space-y-4">
+      <div>
+        @if (notifications.message()) {
+          <p class="mb-5 w-full rounded-xl border border-red-200 bg-red-50 p-3.5 text-sm text-red-700" role="alert">
+            {{ notifications.message() }}
+          </p>
+        }
+
         <form
           [formGroup]="form"
-          class="flex flex-col gap-4 items-center"
+          class="flex flex-col gap-5"
           (ngSubmit)="onSubmit()"
         >
-          <input
-            type="text"
-            formControlName="userName"
-            placeholder="username"
-            class="w-full p-3 border-2"
-          />
-          <input
-            type="password"
-            formControlName="password"
-            placeholder="password"
-            class="w-full p-3 border-2"
-          />
+          <label class="form-field">
+            <span>Email address</span>
+            <div class="input-wrap">
+              <i class="uil uil-envelope"></i>
+              <input
+                type="email"
+                formControlName="email"
+                placeholder="admin@example.com"
+                autocomplete="email"
+              />
+            </div>
+          </label>
+
+          <label class="form-field">
+            <span>Password</span>
+            <div class="input-wrap">
+              <i class="uil uil-lock-alt"></i>
+              <input
+                [type]="showPassword ? 'text' : 'password'"
+                formControlName="password"
+                placeholder="Enter your password"
+                autocomplete="current-password"
+              />
+              <button
+                type="button"
+                class="password-toggle"
+                (click)="togglePasswordVisibility()"
+                [attr.aria-label]="showPassword ? 'Hide password' : 'Show password'"
+                [attr.aria-pressed]="showPassword"
+              >
+                <i [class]="showPassword ? 'uil uil-eye-slash' : 'uil uil-eye'"></i>
+              </button>
+            </div>
+          </label>
+
           <button
             type="submit"
-            class="border px-12 py-2 cursor-pointer hover:bg-gray-200 rounded-md"
+            [disabled]="isLoading"
+            class="login-button"
           >
-            Login
+            @if (isLoading) {
+              <span class="button-spinner" aria-hidden="true"></span>
+            }
+            {{ isLoading ? 'Signing in...' : 'Login' }}
           </button>
         </form>
       </div>

@@ -13,54 +13,62 @@ import { FormsModule } from '@angular/forms';
   styleUrl: './order-details.component.css'
 })
 export class OrderDetailsComponent implements OnInit {
-  route = inject(ActivatedRoute);
-  orderService = inject(OrderService);
+  private readonly route = inject(ActivatedRoute);
+  private readonly orderService = inject(OrderService);
   
   order: Order | null = null;
+  orderId = '';
   loading = true;
+  loadError = false;
   updating = false;
+  feedbackMessage = '';
+  feedbackType: 'success' | 'error' = 'success';
+  readonly progressSteps = ['pending', 'processing', 'shipped', 'delivered'];
 
   ngOnInit() {
     const id = this.route.snapshot.paramMap.get('id');
     if (id) {
+      this.orderId = id;
       this.fetchOrder(id);
+    } else {
+      this.loading = false;
     }
   }
 
-  fetchOrder(id: string) {
+  fetchOrder(id: string): void {
+    this.loading = true;
+    this.loadError = false;
     this.orderService.getOrders().subscribe({
       next: (res: {orders: Order[]}) => {
         this.order = res.orders.find((o: Order) => o._id === id) || null;
         this.loading = false;
       },
-      error: (err: any) => {
-        console.error(err);
+      error: (error: unknown) => {
+        console.error(error);
+        this.loadError = true;
         this.loading = false;
       }
     });
   }
 
-  updateStatus(newStatus: string) {
+  updateStatus(newStatus: string): void {
     if (!this.order) return;
-    
+
+    this.feedbackMessage = '';
     this.updating = true;
     this.orderService.updateOrderStatus(this.order._id, newStatus).subscribe({
       next: (res) => {
         if (this.order) {
-            this.order.status = res.order.status as any;
-            
-            // Notification simulation
-            if (newStatus === 'shipped') {
-                alert(`Order marked as SHIPPED.\n\nSimulated: SMS sent to customer ${this.order.customer.phoneNumber}: "Your order #${this.order._id.slice(-6)} has been shipped!"`);
-            } else if (newStatus === 'delivered') {
-                 alert(`Order marked as DELIVERED.\n\nSimulated: SMS sent to customer ${this.order.customer.phoneNumber}: "Your order #${this.order._id.slice(-6)} has been delivered!"`);
-            }
+          this.order = { ...this.order, status: res.order.status };
         }
+        this.feedbackType = 'success';
+        this.feedbackMessage = `Order status updated to ${newStatus}.`;
         this.updating = false;
       },
-      error: (err) => {
-        console.error('Error updating status:', err);
-        alert('Failed to update status');
+      error: (error: unknown) => {
+        console.error('Error updating status:', error);
+        this.feedbackType = 'error';
+        this.feedbackMessage = 'The order status could not be updated. Please try again.';
         this.updating = false;
       }
     });
@@ -68,12 +76,13 @@ export class OrderDetailsComponent implements OnInit {
 
   getStatusClass(status: string): string {
     switch (status) {
-      case 'pending': return 'bg-yellow-100 text-yellow-800';
-      case 'processing': return 'bg-blue-100 text-blue-800'; // Changed from confirmed
-      case 'shipped': return 'bg-indigo-100 text-indigo-800';
-      case 'delivered': return 'bg-green-100 text-green-800';
-      case 'cancelled': return 'bg-red-100 text-red-800';
-      default: return 'bg-gray-100 text-gray-800';
+      case 'pending': return 'status-pending';
+      case 'processing': return 'status-processing';
+      case 'paid': return 'status-paid';
+      case 'shipped': return 'status-shipped';
+      case 'delivered': return 'status-delivered';
+      case 'cancelled': return 'status-cancelled';
+      default: return 'status-neutral';
     }
   }
 
@@ -82,12 +91,24 @@ export class OrderDetailsComponent implements OnInit {
     if (!this.order) return [];
     
     switch (this.order.status) {
-        case 'pending': return ['processing', 'cancelled']; // Changed from confirmed
-        case 'processing': return ['shipped', 'cancelled']; // Changed from confirmed
+        case 'pending': return ['processing', 'cancelled'];
+        case 'paid': return ['processing', 'cancelled'];
+        case 'processing': return ['shipped', 'cancelled'];
         case 'shipped': return ['delivered'];
         case 'delivered': return []; 
         case 'cancelled': return [];
         default: return [];
     }
+  }
+
+  isStepComplete(step: string): boolean {
+    if (!this.order || this.order.status === 'cancelled') return false;
+    const currentIndex = this.progressSteps.indexOf(this.order.status === 'paid' ? 'pending' : this.order.status);
+    return this.progressSteps.indexOf(step) <= currentIndex;
+  }
+
+  isCurrentStep(step: string): boolean {
+    if (!this.order) return false;
+    return step === (this.order.status === 'paid' ? 'pending' : this.order.status);
   }
 }
