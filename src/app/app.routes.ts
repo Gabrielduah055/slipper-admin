@@ -9,11 +9,11 @@ import { OrdersComponent } from './pages/orders/orders.component';
 import { OrderDetailsComponent } from './pages/orders/order-details/order-details.component';
 import { CustomersComponent } from './pages/customers/customers.component';
 import { CustomerDetailsComponent } from './pages/customers/customer-details/customer-details.component';
-import { AuthGuard } from './Guard/auth.guard';
+import { AuthGuard, LoginGuard } from './Guard/auth.guard';
 
 export const routes: Routes = [
     { path: '', redirectTo: '/login', pathMatch: 'full' },
-    { path: 'login', component: LoginComponent },
+    { path: 'login', component: LoginComponent, canActivate: [LoginGuard] },
     
     {
         path: '',

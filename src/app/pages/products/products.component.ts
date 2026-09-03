@@ -20,6 +20,9 @@ export class ProductsComponent implements OnInit {
   filteredProducts: Products[] = [];
   categories: string[] = [];
   isLoading = false;
+  loadError = false;
+  currentPage = 1;
+  readonly pageSize = 8;
 
   // Filter states
   searchTerm: string = '';
@@ -34,6 +37,7 @@ export class ProductsComponent implements OnInit {
 
   loadProducts() {
     this.isLoading = true;
+    this.loadError = false;
     this.productService.getProducts().subscribe({
       next: (products) => {
         this.allProducts = products;
@@ -42,6 +46,7 @@ export class ProductsComponent implements OnInit {
       },
       error: (err) => {
         console.error('Error loading products:', err);
+        this.loadError = true;
         this.isLoading = false;
       }
     });
@@ -109,6 +114,7 @@ export class ProductsComponent implements OnInit {
     }
 
     this.filteredProducts = result;
+    this.currentPage = 1;
   }
 
   deleteProduct(id: string) {
@@ -127,5 +133,53 @@ export class ProductsComponent implements OnInit {
 
   onFilterChange() {
     this.applyFilters();
+  }
+
+  get paginatedProducts(): Products[] {
+    const start = (this.currentPage - 1) * this.pageSize;
+    return this.filteredProducts.slice(start, start + this.pageSize);
+  }
+
+  get totalPages(): number {
+    return Math.ceil(this.filteredProducts.length / this.pageSize);
+  }
+
+  get visiblePages(): number[] {
+    const start = Math.max(1, Math.min(this.currentPage - 1, this.totalPages - 2));
+    const end = Math.min(this.totalPages, start + 2);
+    return Array.from({ length: Math.max(0, end - start + 1) }, (_, index) => start + index);
+  }
+
+  get resultStart(): number {
+    return this.filteredProducts.length === 0 ? 0 : (this.currentPage - 1) * this.pageSize + 1;
+  }
+
+  get resultEnd(): number {
+    return Math.min(this.currentPage * this.pageSize, this.filteredProducts.length);
+  }
+
+  goToPage(page: number): void {
+    if (page < 1 || page > this.totalPages || page === this.currentPage) {
+      return;
+    }
+
+    this.currentPage = page;
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  clearFilters(): void {
+    this.searchTerm = '';
+    this.selectedCategory = 'All Categories';
+    this.selectedStatus = 'Any Status';
+    this.selectedSort = 'Sort';
+    this.applyFilters();
+  }
+
+  trackProduct(_: number, product: Products): string | undefined {
+    return product._id;
+  }
+
+  get lowStockCount(): number {
+    return this.allProducts.filter((product) => product.productStock > 0 && product.productStock <= 5).length;
   }
 }

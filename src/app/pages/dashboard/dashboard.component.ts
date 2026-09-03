@@ -5,8 +5,8 @@ import { OrderService } from '../../service/order.service';
 import { CustomerService } from '../../service/customer.service';
 import { ProductsService } from '../../service/products.service';
 import { Order } from '../../interface/order.interface';
-import { Customer } from '../../interface/customer.interface';
 import { Products } from '../../interface/product_interface';
+import { finalize, forkJoin } from 'rxjs';
 
 @Component({
     selector: 'app-dashboard',
@@ -16,74 +16,72 @@ import { Products } from '../../interface/product_interface';
     styleUrl: './dashboard.component.css'
 })
 export class DashboardComponent implements OnInit {
-  orderService = inject(OrderService);
-  customerService = inject(CustomerService);
-  productService = inject(ProductsService);
+  private readonly orderService = inject(OrderService);
+  private readonly customerService = inject(CustomerService);
+  private readonly productService = inject(ProductsService);
 
   // Stats
   totalRevenue = 0;
   totalOrders = 0;
   totalCustomers = 0;
   totalProducts = 0;
+  pendingOrders = 0;
+  lowStockProducts = 0;
+  outOfStockProducts = 0;
+  averageOrderValue = 0;
+  fulfilledRate = 0;
 
   // Lists
   recentOrders: Order[] = [];
   topProducts: { product: Products, count: number }[] = [];
   
   loading = true;
+  loadError = false;
+  readonly today = new Date();
 
   ngOnInit() {
     this.fetchData();
   }
 
-  fetchData() {
-    // We need to fetch all data to calculate stats
-    // In a real app, the backend should provide a /stats endpoint
-    
-    // 1. Fetch Orders
-    this.orderService.getOrders().subscribe({
-      next: (res: {orders: Order[]}) => {
-        const orders = res.orders;
+  fetchData(): void {
+    this.loading = true;
+    this.loadError = false;
+
+    forkJoin({
+      orderResponse: this.orderService.getOrders(),
+      customerResponse: this.customerService.getCustomers(),
+      products: this.productService.getProducts()
+    }).pipe(
+      finalize(() => this.loading = false)
+    ).subscribe({
+      next: ({ orderResponse, customerResponse, products }) => {
+        const orders = orderResponse.orders;
+        const completedOrders = orders.filter((order) => order.status !== 'cancelled');
+
         this.totalOrders = orders.length;
-        
-        // Calculate Revenue (only from non-cancelled orders)
-        this.totalRevenue = orders
-          .filter(o => o.status !== 'cancelled')
-          .reduce((acc, curr) => acc + curr.totalAmount, 0);
-
-        // Recent Orders
-        this.recentOrders = [...orders].slice(0, 5);
-
-        // Calculate Top Products (Need products first to match details)
-        this.fetchProducts(orders);
-      },
-      error: (err: any) => console.error('Error fetching orders:', err)
-    });
-
-    // 2. Fetch Customers
-    this.customerService.getCustomers().subscribe({
-      next: (res: {customers: Customer[]}) => {
-        this.totalCustomers = res.customers.length;
-      },
-      error: (err: any) => console.error('Error fetching customers:', err)
-    });
-  }
-
-  fetchProducts(orders: Order[]) {
-    this.productService.getProducts().subscribe({
-      next: (products: Products[]) => {
+        this.totalCustomers = customerResponse.customers.length;
         this.totalProducts = products.length;
+        this.totalRevenue = completedOrders.reduce((total, order) => total + order.totalAmount, 0);
+        this.averageOrderValue = completedOrders.length > 0 ? this.totalRevenue / completedOrders.length : 0;
+        this.pendingOrders = orders.filter((order) => ['pending', 'processing', 'paid'].includes(order.status)).length;
+        this.lowStockProducts = products.filter((product) => product.productStock > 0 && product.productStock <= 5).length;
+        this.outOfStockProducts = products.filter((product) => product.productStock === 0).length;
+        this.fulfilledRate = completedOrders.length > 0
+          ? Math.round((orders.filter((order) => order.status === 'delivered').length / completedOrders.length) * 100)
+          : 0;
+        this.recentOrders = [...orders]
+          .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+          .slice(0, 5);
         this.calculateTopProducts(orders, products);
-        this.loading = false;
       },
-      error: (err: any) => {
-        console.error('Error fetching products:', err);
-        this.loading = false;
+      error: (error: unknown) => {
+        console.error('Error loading dashboard:', error);
+        this.loadError = true;
       }
     });
   }
 
-  calculateTopProducts(orders: Order[], products: Products[]) {
+  calculateTopProducts(orders: Order[], products: Products[]): void {
     const productSales = new Map<string, number>();
 
     orders.forEach(order => {
@@ -112,7 +110,9 @@ export class DashboardComponent implements OnInit {
   getStatusClass(status: string): string {
     switch (status) {
       case 'pending': return 'bg-yellow-100 text-yellow-800';
-      case 'confirmed': return 'bg-blue-100 text-blue-800';
+      case 'processing': return 'bg-blue-100 text-blue-800';
+      case 'paid': return 'bg-violet-100 text-violet-800';
+      case 'shipped': return 'bg-cyan-100 text-cyan-800';
       case 'delivered': return 'bg-green-100 text-green-800';
       case 'cancelled': return 'bg-red-100 text-red-800';
       default: return 'bg-gray-100 text-gray-800';
